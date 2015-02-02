@@ -1,0 +1,115 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <queue>
+
+using namespace std;
+
+#define rep(i,n) for(int i=0;i<n;i++);
+
+// 0-> can go , 1-> cant go
+
+class matrixnode
+{
+    public:
+
+    int row;
+    int col;
+    bool visited;
+    int val;
+
+
+    matrixnode()
+    {
+        this->row=0;
+        this->col=0;
+        this->visited=false;
+        this->val=0;
+    }
+};
+matrixnode myNULL;
+
+int getShortestPath(int board[][4] ,int m, int n, int startRow, int startCol, int endRow, int endCol)
+{
+    if(m < 1) return -1;
+
+    if(board[startRow][startCol] == 1 || board[endRow][endCol] == 1)
+        return -1;
+
+    vector< vector<matrixnode> > sol(m+2, vector<matrixnode> (n+2));
+
+    //make a boundry all across the matrix so that u have no problem with end cases
+    //otherwise u have to write a function of indexchecking
+
+    for(int i=0; i<m+2; i++){
+        for(int j=0; j<n+2; j++)
+        {
+            sol[i][j].visited=false;
+            sol[i][j].row=i;
+            sol[i][j].col=j;
+
+            if(i == 0 || i== m+1 || j==0 || j==n+1)
+                sol[i][j].val = 1;
+            else
+                sol[i][j].val=board[i-1][j-1];
+        }
+    }
+
+    int c=0;
+    queue<matrixnode> q ;
+    q.push(sol[startRow + 1][startCol+1]);
+    q.push(myNULL);
+
+    while(!q.empty())
+    {
+        matrixnode node=q.front();
+        q.pop();
+
+        if(node.val == -1)
+        {
+            c++;
+            q.push(myNULL);
+        }
+
+        else
+        {
+            if(node.row - 1 == endRow && node.col -1 == endCol)
+                break;
+
+            node.visited=true;
+            int i=node.row;
+            int j=node.col;
+
+            if(sol[i][j+1].val == 0 && sol[i][j+1].visited == false)
+                q.push(sol[i][j+1]);
+            if(sol[i][j-1].val == 0 && sol[i][j-1].visited == false)
+                q.push(sol[i][j-1]);
+            if(sol[i+1][j].val == 0 && sol[i+1][j].visited == false)
+                q.push(sol[i+1][j]);
+            if(sol[i-1][j].val == 0 && sol[i-1][j].visited == false)
+                q.push(sol[i-1][j]);
+
+        }
+    }
+    return c;
+}
+
+int main()
+{
+    int board[][4] = {  {0, 0, 0, 1},
+                        {0, 0, 0, 0},
+                        {0, 1, 1, 0},
+                        {1, 0, 0, 0},
+                        {1, 0, 0, 0}
+    };
+
+
+    myNULL.val=-1;
+
+    int m=sizeof(board)/sizeof(board[0]);
+    int n=sizeof(board[0])/sizeof(int);
+
+    cout<<"the shortest path from (1,1) to (4,2) is "<<getShortestPath(board,m,n, 1, 1, 4, 2)<<endl;
+
+    return 0;
+}

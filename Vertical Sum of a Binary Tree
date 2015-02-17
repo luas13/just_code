@@ -1,0 +1,73 @@
+#include <iostream>
+#include <map>
+
+using namespace std;
+
+typedef struct tree
+{
+    int data;
+    struct tree* left;
+    struct tree* right;
+}mytree;
+
+mytree* newnode(int data)
+{
+  mytree* node = new mytree();
+  node->data = data;
+  node->left = NULL;
+  node->right = NULL;
+
+  return(node);
+}
+
+void vsum(mytree* r,map<int,int> &mymap,int hd)
+{
+    if(!r)
+        return;
+    vsum(r->left,mymap,hd-1);
+
+
+    int prevsum=(!mymap[hd]) ? 0: mymap[hd];
+    
+    mymap[hd] = r->data + prevsum;
+
+    vsum(r->right,mymap,hd+1);
+
+}
+
+//void verticalsum(mytree* r,map<int,int> mymap)
+void verticalsum(mytree* r)
+{
+    map<int,int> mymap;
+    vsum(r,mymap,0);
+
+    cout<<"the vertical sum is \n";
+    for( map<int,int>::iterator it=mymap.begin(); it!=mymap.end(); ++it )
+        cout<<(*it).second<<" ";
+}
+
+int main()
+{
+   /* Create following Binary Tree
+              1
+            /    \
+          2        3
+         / \      / \
+        4   5    8   7
+
+        */
+  mytree *root       = newnode(1);
+  root->left         = newnode(2);
+  root->right        = newnode(3);
+  root->left->left   = newnode(4);
+  root->left->right  = newnode(5);
+  root->right->left  = newnode(8);
+  root->right->right = newnode(7);
+
+  //root->left->left->left=newnode(-3);
+  //root->left->left->right=newnode(-10);
+
+  verticalsum(root);
+
+  return 0;
+}

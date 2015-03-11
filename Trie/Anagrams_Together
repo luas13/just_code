@@ -1,0 +1,144 @@
+/*Beautiful implementation by use of TRIE and LINKED LIST
+
+Trie data structure can be used for a more efficient solution. Insert the sorted order of each word in the trie. 
+Since all the anagrams will end at the same leaf node. We can start a linked list at the leaf nodes where each node 
+represents the index of the original array of words. Finally, traverse the Trie. While traversing the Trie, traverse 
+each linked list one line at a time. Following are the detailed steps.
+
+*/
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cstring>
+
+using namespace std;
+
+
+typedef struct index_list
+{
+    int index;
+    struct index_list* next;
+}ilist;
+
+
+typedef struct trie_node
+{
+    bool isEnd;
+    struct trie_node* child[26];
+    ilist* head;
+}mytrie;
+
+
+
+mytrie* get_Trie_node()
+{
+    mytrie* temp= new trie_node;
+    temp->isEnd = false;
+    temp->head = NULL;
+    for(int i=0; i<26; i++)
+        temp->child[i] = NULL;
+
+    return temp;
+}
+
+
+
+ilist* get_Index_List_node(int ind)
+{
+    ilist* temp= new ilist;
+    temp->index =ind;
+    temp->next = NULL;
+    return temp;
+}
+
+
+void insert_tnode(mytrie** root, char* word, int ind)
+{
+    if(! (*root) )
+        *root= get_Trie_node();
+
+    if( *word != '\0')
+        insert_tnode(& ( (*root)->child[ tolower(*word) - 'a'] ) , word+1, ind );
+
+    else
+    {
+        if( (*root)->isEnd )
+        {
+            ilist* pcrawl= (*root)->head;
+            for( ; pcrawl->next; pcrawl= pcrawl->next);
+            pcrawl->next = get_Index_List_node( ind );
+        }
+        else
+        {
+            (*root)->isEnd = true;
+            (*root)->head = get_Index_List_node( ind );
+        }
+    }
+}
+
+
+void print_util(mytrie* root, char* wordArr[])
+{
+    if(!root)
+        return;
+
+    if(root->isEnd)
+    {
+        ilist* pcrawl = root->head;
+        for(; pcrawl; pcrawl= pcrawl->next )
+        {
+            cout<<wordArr[ pcrawl->index ] << " ";
+        }
+    }
+    else
+    {
+        for(int i=0; i<26; i++)
+            print_util( root->child[i], wordArr);
+    }
+}
+
+
+int compare(const void *a, const void *b)
+{
+    return ( *(char*)a - *(char*)b );
+}
+
+
+void print_anagrams_together(char* wordArr[], int size)
+{
+    if(size == 0)
+        return;
+
+    mytrie* root= NULL;
+
+    for( int i=0; i<size; i++)
+    {
+        int l= strlen(wordArr[i]);
+        char* buffer= new char[ l+1 ];
+        strcpy(buffer, wordArr[i]);
+        qsort( (void*)buffer, strlen(buffer), sizeof(char), compare);
+
+        insert_tnode(&root, buffer, i);
+    }
+
+    print_util(root, wordArr);
+}
+
+
+int main()
+{
+    char* wordArr[] = {"cat", "dog", "tac", "god", "act", "gdo"};
+    int size = sizeof(wordArr) / sizeof(wordArr[0]);
+
+    cout<<"The words are "<<endl;
+    for(int i=0; i<size; i++)
+        cout<<wordArr[i]<< " ";
+    cout<<endl;
+
+    cout<<"\nAll the anagrams together are "<<endl;
+    print_anagrams_together(wordArr, size);
+    cout<<endl;
+
+    return 0;
+}

@@ -1,0 +1,278 @@
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+#define MAX_WORD_SIZE 50
+
+typedef struct trie_node
+{
+    int frequency;
+    bool isEnd;
+    int minHeapIndex;   // the index of the word in minHeap
+    struct trie_node* child[26];
+}tnode;
+
+
+typedef struct minimum_Heap_Node
+{
+    int frequency;
+    char* array;   // the actual word stored
+    tnode* root;   // indicates the leaf node of TRIE
+}minHeapNode;
+
+
+typedef struct minimum_heap
+{
+    int capacity;
+    int hsize;
+    minHeapNode* harray;
+}minheap;
+
+
+void hswap( minHeapNode* a, minHeapNode* b)
+{
+    minHeapNode t= *a;
+    *a= *b;
+    *b= t;
+}
+
+tnode* init_trie()
+{
+    tnode* temp = new tnode;
+    temp ->isEnd = false;
+    temp->frequency = 0;
+    temp->minHeapIndex = -1;
+    for(int i=0; i<26; i++)
+        temp->child[i] = NULL;
+    return temp;
+}
+
+
+minheap* init_min_heap( int c )
+{
+    minheap* h= new minheap;
+    h->capacity = c;
+    h->hsize = 0;
+    h->harray = new minHeapNode[c];
+    return h;
+}
+
+
+void heapify(minheap* h, int index)
+{
+    int left= (index*2) + 1 ;
+    int right= (index*2) + 2 ;
+
+    int minval= index;
+
+    //vvi check left < h->hsize and not left < h->capacity
+    if( left < h->hsize && h->harray[left].frequency < h->harray[minval].frequency )
+        minval= left;
+
+    if( right < h->hsize && h->harray[right].frequency < h->harray[minval].frequency )
+        minval= right;
+
+    if(minval != index)
+    {
+        // ***Imp*** Update the corresponding index in Trie node apart from swapping heap nodes
+        h->harray[index].root->minHeapIndex = minval;
+        h->harray[minval].root->minHeapIndex = index;
+
+        hswap( &(h->harray[index]) , &(h->harray[minval]) );
+        heapify(h, minval);
+    }
+}
+
+
+void build_heap(minheap* h)
+{
+    int c = h->hsize - 1;
+    for(int i = (c)/2; i>=0; i--)
+        heapify(h, i);
+}
+
+
+
+void insert_min_heap(tnode** root, minheap* h, char* word)
+{
+    if( (*root)->minHeapIndex != -1 )
+    {
+        ( h->harray[ (*root)->minHeapIndex ].frequency ) ++;
+        heapify(h, (*root)->minHeapIndex );
+    }
+    else if( h->hsize < h->capacity )
+    {
+        h->harray[h->hsize].frequency = (*root)->frequency;
+        h->harray[h->hsize].root = *root;
+        h->harray[h->hsize].array = new char[strlen(word) + 1];
+        strcpy( h->harray[h->hsize].array, word );
+        (*root)->minHeapIndex = h->hsize;
+        ++(h->hsize);
+        build_heap(h);
+    }
+    else if( (*root)->frequency > h->harray[0].frequency )
+    {
+        h->harray[0].root->minHeapIndex= -1;     // remember to update root's minHeapIndex in trie
+        h->harray[0].root = *root;
+        h->harray[0].root->minHeapIndex= 0;
+
+        h->harray[0].frequency = (*root)->frequency;
+
+        delete[] h->harray[0].array ;
+        h->harray[0].array = new char[ strlen(word) + 1 ];
+        strcpy( h->harray[0].array, word );
+        heapify(h, 0);
+    }
+}
+
+
+
+
+//insert in trie as well as minimum heap
+//please see this function carefully
+
+void insert_util(tnode** root, char* word, char* dupword, minheap* h)
+{
+    if( !(*root) )
+        *root= init_trie();
+
+    if( *word != '\0')
+    {
+        insert_util(& ( (*root)->child[tolower(*word) - 'a'] ), word+1 ,dupword, h);
+    }
+    else
+    {
+        if( (*root)->isEnd == false)
+        {
+            (*root)->isEnd = true;
+        }
+        ( (*root)->frequency )++;
+        insert_min_heap(root, h, dupword);
+    }
+
+}
+
+
+void insert_trie_heap(char* word, tnode** root, minheap* h ){
+    insert_util(root, word, word, h);
+}
+
+
+void displayMinHeap( minheap* minHeap )
+{
+    int i;
+
+    // print top K word with frequency
+    for( i = 0; i < minHeap->hsize; ++i ){
+        printf( "%s : %d\n", minHeap->harray[i].array,
+                            minHeap->harray[i].frequency );
+    }
+}
+
+
+void printTrieUtil (tnode* tn, char buffer[], int len)
+{
+    if(tn)
+    {
+        if(tn->isEnd == true)
+        {
+            buffer[len] = '\0' ;
+            cout<<buffer<<" "<<tn->frequency<<endl;
+        }
+        for(int i=0; i<26; i++)
+        {
+            if(tn->child[i])
+            {
+                buffer[len] = i + 'a' ;
+                printTrieUtil(tn->child[i], buffer ,len+1 );
+            }
+        }
+    }
+}
+
+
+void printKMostFreq( FILE* fp, int k )
+{
+    minheap* h = init_min_heap( k );
+    tnode* root = NULL;
+
+    // A buffer to store one word at a time
+    char buffer[MAX_WORD_SIZE];
+
+    // Read words one by one from file.  Insert the word in Trie and Min Heap
+    while( fscanf( fp, "%s", buffer ) != EOF )
+        insert_trie_heap(buffer, &root, h);
+
+    displayMinHeap( h );
+
+    cout<<"\nThe whole trie is \n";
+    char buffer1[100];
+    printTrieUtil(root, buffer1, 0 );
+}
+
+// Driver program to test above functions
+int main()
+{
+    int k = 5;
+    FILE *fp = fopen ("file.txt", "r");
+    if (fp == NULL)
+        printf ("File doesn't exist ");
+    else
+        printKMostFreq (fp, k);
+    return 0;
+}
+
+//************************************OUTPUT***********************************
+
+your : 3
+well : 3
+and : 4
+to : 4
+Geeks : 6
+
+The whole trie is 
+and 4
+appearing 1
+article 3
+at 1
+been 1
+can 1
+chance 1
+contribute 2
+created 1
+explained 1
+for 3
+geeks 6
+geeksforgeeks 1
+has 1
+help 1
+here 1
+if 1
+is 1
+like 2
+mail 1
+main 1
+of 2
+on 1
+org 1
+other 1
+page 1
+portal 1
+provide 1
+questions 1
+see 1
+selected 1
+solutions 1
+the 2
+this 1
+thought 1
+thousands 1
+to 4
+welcome 1
+well 3
+world 1
+would 1
+write 1
+written 1
+you 2
+your 3

@@ -1,0 +1,121 @@
+#include <iostream>
+#include <math.h>
+
+using namespace std;
+
+//c_index = index to be changed,  c_val = updated value
+
+void updateValue_util(int* st, int ss, int se, int c_index, int diff, int index )
+{
+    if( c_index < ss || c_index > se )
+        return;
+
+    st[index] += diff;
+
+
+    // vvi to put a check otherwise u can land into infinite loop
+    //Bcz lets say c_index = 2 then when control comes to the leaf node ss= 2 & se = 2 ,index =4. If condition is absent
+    //it will call updateValue_util with ss=2 & se =2 again and again with index value chnging everytime
+    //first time updateValue_util will be called with index =9 and 10 which is not desired at all.the worst can happen
+    // if this contiues as it may call index out of segment array.
+    
+    if( se != ss )
+    {
+        int mid= ss + (se - ss)/2 ;
+        updateValue_util(st, ss, mid, c_index, diff, (2*index) + 1 );
+        updateValue_util(st, mid+1, se, c_index, diff, (2*index) + 2 );
+    }
+}
+
+
+void updateValue(int* arr, int* st, int n, int c_index, int c_val )
+{
+    if( c_index < 0 || c_index >= n)
+    {
+        cout<<"Invalid Input !!!\n";
+        return ;
+    }
+
+    int diff = c_val - arr[c_index];
+    arr[c_index] = c_val;
+    updateValue_util(st, 0, n-1, c_index, diff, 0 );
+}
+
+
+
+int getSum_util( int* st, int ss, int se, int qs, int qe, int index)
+{
+    if(qs <= ss && qe >= se)
+        return st[index];
+
+    if( qe < ss || qs > se)
+        return 0;
+
+    int mid= ss + (se - ss)/2 ;
+    return getSum_util(st, ss, mid, qs, qe, (2*index)+1 ) + getSum_util(st, mid+1, se, qs, qe, (2*index)+2 );
+}
+
+
+
+//qs- query start,  qe- query end
+
+int getSum(int* st, int n, int qs, int qe)
+{
+    if( qs>qe || qs<0 || qe>=n )
+    {
+        cout<<"Invalid Input !!!\n";
+        return 0;
+    }
+
+    return( getSum_util(st, 0, n-1, qs, qe, 0) );
+}
+
+
+//st - segment tree array
+//ss- segment start,  se- segment end
+// index- index of current node in segment tree st
+
+int constructST_util(int* st, int* arr, int ss, int se, int index)
+{
+    if(ss == se)
+    {
+        st[index]= arr[ss];                                     // imp line
+        return arr[ss];
+    }
+
+    int mid= ss + (se - ss)/2 ;
+    st[index] = constructST_util(st, arr, ss, mid, (2*index) + 1 ) + constructST_util(st, arr, mid+1, se, (2*index) + 2 );
+    return st[index];
+}
+
+
+
+int* constructST(int* arr, int n)
+{
+    int x= ceil( log2(n));
+    int s= ( 2* pow(2,x) ) -1;
+    int* st= new int[s];
+    constructST_util(st, arr, 0, n-1, 0);
+    return st;
+}
+
+
+int main()
+{
+    int arr[] = {1, 3, 5, 7, 9, 11};
+    int n = sizeof(arr)/sizeof(arr[0]);
+
+    int *st = constructST(arr, n);
+
+    // Print sum of values in array from index 1 to 3
+    printf("Sum of values in given range = %d\n", getSum(st, n, 1, 3));
+
+    // Update: set arr[1] = 10 and update corresponding segment
+    // tree nodes
+    updateValue(arr, st, n, 1, 10);
+
+    // Find sum after the value is updated
+    printf("Updated sum of values in given range = %d\n",getSum(st, n, 1, 3));
+
+    return 0;
+}

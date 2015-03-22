@@ -1,0 +1,81 @@
+/*
+A ranked binary tree is a binary tree whose nodes have integer ranks, with leaves having rank zero and missing nodes
+having rank minus one. For any node, it basically gives number of nodes to its left. If x is a child, the rank dierence of x, is the rank of its parent minus the rank of x.
+The rank of a ranked tree is the rank of its root.
+
+The following code is for an unbalanced Rank Tree i.e has a worst case of O(n^2) for sorted input. The worst case can
+be avoided by balancing the nodes. Also, we would need to set left_sum every time a rotation occurs.
+
+( Rank Tree + AVL Tree ) can be used to find running median.
+
+*/
+
+#include <iostream>
+using namespace std;
+struct node
+{
+    int value,left_size;
+    struct node *left;
+    struct node *right;
+};
+typedef struct node TreeNode;
+
+TreeNode* createNode(int n)
+{
+    TreeNode *temp = new TreeNode();
+    temp->value = n;
+    temp->left_size = 0;
+    return temp;
+}
+void add(TreeNode* &root, int n)
+{
+    if(root==NULL)
+        root  = createNode(n);
+    else if(n<root->value)
+    {
+        add(root->left,n);
+        root->left_size++;
+    }
+    else
+        add(root->right,n);
+}
+int getRank(TreeNode* root, int n)
+{
+    if(root->value==n)
+        return root->left_size;
+    else if(n<root->value)
+    {
+        if(root->left==NULL) return -1;
+        else return getRank(root->left,n);
+    }
+    else
+    {
+        int right_rank = (root->right)?getRank(root->right,n):-1;
+        if(right_rank==-1) return -1;
+        return 1 + root->left_size + right_rank;
+    }
+}
+int main()
+{
+    TreeNode* root = NULL;
+    int a[] = {11,7,13,5,15};
+    int size = sizeof(a)/sizeof(a[0]);
+    for(int i=0; i<size; i++)
+    {
+        add(root,a[i]);
+    }
+    for(int i=0; i<size; i++)
+    {
+        cout<<getRank(root,a[i])<<" ";
+    }
+    return 0;
+}
+
+/* Output
+2 1 3 0 4
+i.e rank(11) = 2
+rank(7) = 1
+rank(13) = 3
+rank(5) = 0
+rank(15) = 4
+*/

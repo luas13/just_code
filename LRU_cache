@@ -1,0 +1,165 @@
+#include <iostream>
+
+using namespace std;
+
+typedef struct queue_node
+{
+    int page_number;
+    struct queue_node *next;
+    struct queue_node *prev;
+}qnode;
+
+
+typedef struct queue_fifo
+{
+    qnode *front, *rear;
+    int count;              //no of frames filled
+    int noframes;           // total no of frames
+}Queue;
+
+
+typedef struct hash_map_qnode
+{
+    int capacity;
+    qnode* *array;
+}Hash;
+
+
+qnode* newqnode(int pn)
+{
+    qnode* tmp= new qnode;
+    tmp->page_number = pn;
+    tmp->next= NULL;
+    tmp->prev= NULL;
+    return tmp;
+}
+
+
+Queue* createQueue( int np)
+{
+    Queue* q = new Queue;
+    q->front = NULL;
+    q->rear = NULL;
+    q->count = 0;
+    q->noframes = np;
+    return q;
+}
+
+
+
+Hash* createHash(int c)
+{
+    Hash* h= new Hash;
+    h->array = (qnode**)malloc( sizeof(qnode*) * c);
+    h->capacity= c;
+
+    for(int i=0; i<c; i++)
+    {
+        h->array[i]= NULL;
+    }
+
+    return h;
+}
+
+
+
+int isEmpty( Queue* queue )
+{
+    return queue->rear == NULL;
+}
+
+
+
+void dequeue( Queue* q )
+{
+    if( isEmpty(q) )
+        return;
+    if( q->front == q->rear )
+        q->front = NULL;
+
+    qnode* tmp= q->rear;
+    q->rear = tmp->prev;
+
+    if(q->rear)
+        q->rear->next = NULL;
+
+    q->count --;
+
+    free(tmp);
+}
+
+
+void enqueue( Queue *q, Hash* h, int pn)
+{
+    if( q->count == q->noframes )
+    {
+        h->array[ q->rear->page_number ] = NULL;
+        dequeue (q);
+    }
+    qnode* tmp= newqnode(pn);
+    tmp->next= q->front;
+
+
+    if( isEmpty(q) )
+        q->front = q->rear = tmp;
+    else
+    {
+        q->front->prev = tmp;
+        q->front = tmp;
+    }
+
+    q->count ++;
+    h->array[pn]= tmp;
+}
+
+
+
+void ReferencePage( Queue* q, Hash* h, int p_no)
+{
+    qnode* reqpage= h->array[ p_no ];
+    if(reqpage == NULL)
+        enqueue(q, h, p_no);
+    else if( q->front != reqpage )
+    {
+        qnode* tmp= reqpage;
+        tmp->prev->next = tmp->next;
+        if(q->rear != tmp)
+            tmp->next->prev= tmp->prev;
+        else
+            q->rear= tmp->prev;
+
+        tmp->prev = NULL;
+        tmp->next= q->front;
+        tmp->next->prev = tmp;
+        q->front = tmp;
+    }
+
+}
+
+
+
+int main()
+{
+    // Let cache can hold 4 pages
+    Queue* q = createQueue( 4 );
+
+    // Let 10 different pages can be requested (pages to be
+    // referenced are numbered from 0 to 9
+    Hash* hash = createHash( 10 );
+
+    // Let us refer pages 1, 2, 3, 1, 4, 5
+    ReferencePage( q, hash, 1);
+    ReferencePage( q, hash, 2);
+    ReferencePage( q, hash, 3);
+    ReferencePage( q, hash, 1);
+    ReferencePage( q, hash, 4);
+    ReferencePage( q, hash, 5);
+
+    // Let us print cache frames after the above referenced pages
+    printf ("%d ", q->front->page_number);
+    printf ("%d ", q->front->next->page_number);
+    printf ("%d ", q->front->next->next->page_number);
+    printf ("%d ", q->front->next->next->next->page_number);
+
+    return 0;
+}

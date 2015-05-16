@@ -12,6 +12,16 @@ OPT(j) = max { v(j) + OPT(p[j]) , if j in OPT solution ,
                OPT(j-1)         , if j not in OPT solution,
                0                , j=0
 
+Algorithm:
+
+1)Sort the requests in order of non-decreasing finish times. This step takes time O(n log n).
+2)For 1 ≤ j ≤ n, find the largest i < j such that fi ≤ sj, call it p(j). Since the requests are sorted in order of
+  non-decreasing finish times, we can use binary search to find p(j) in time O(log j). 
+  Thus, this step takes time sum(O(log j)) for 1 ≤ j ≤ n = O(n log n).
+3)For 1 ≤ j ≤ n, compute OPT(j) = max(wj + OPT(p(j)), OPT(j-1)). This step takes time O(n).
+
+Thus the overall time complexity of the algorithm is O(n log n).
+
 */
 
 

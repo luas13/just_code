@@ -11,7 +11,7 @@ class LinkedHashEntry{
 public:
 	// Default constructor required because we
 	// can't define parameterized constructor without
-  // default constructor
+  	// default constructor
 	LinkedHashEntry(){}
 	LinkedHashEntry(int k, int v)
 	{
@@ -56,7 +56,7 @@ public:
         hsize = 0;
  	}
 
- 	int get(int key)
+    int get(int key)
     {
         int hash = key % TABLE_SIZE;
         if (table[hash] != NULL)
@@ -101,6 +101,7 @@ public:
             hsize ++;
         }
     }
+	
     void hremove(int key)
     {
         int hash = key % TABLE_SIZE;
@@ -159,12 +160,12 @@ public:
 
 int main() {
 	// No need of = new Hashmap()
-  // Only needed when we dynamically initialise an object
-  // In that case we need to write
-  // Hashmap * hm= new Hashmap();
-  // otherwise Hashmap hm will do
-  // Remember delete takes a pointer so if we just have
-  // Hashmap hm then delete hm will throw an error
+  	// Only needed when we dynamically initialise an object
+  	// In that case we need to write
+  	// Hashmap * hm= new Hashmap();
+  	// otherwise Hashmap hm will do
+  	// Remember delete takes a pointer so if we just have
+  	// Hashmap hm then delete hm will throw an error
   
 	Hashmap* hm = new Hashmap();
 	hm->put(121, 1);

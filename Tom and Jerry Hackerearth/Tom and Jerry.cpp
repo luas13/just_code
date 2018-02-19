@@ -82,9 +82,9 @@ using namespace std;
 
 #define rep(i,n) for(int i=0; i<n; i++)
 
-void countpaths(vector<int>& matrix, vector<int>& visited, int x, int y, int r, int& count)
+void countpaths(vector<vector<int>> &matrix, vector<vector<int>> &visited, int x, int y, int r, int& count)
 {
-	if (x == r-1 && y == c-1)
+	if (x == r-1 && y == r-1)
 	{
 		count++;
 		return;

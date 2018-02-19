@@ -1,10 +1,10 @@
-typdef struct node{
+struct node{
   int data;
   node* left;
   node* right;
-}mynode;
+};
 
-mynode *clone(root)
+node *clone(root)
 {
    if (root == NULL)
       return root;

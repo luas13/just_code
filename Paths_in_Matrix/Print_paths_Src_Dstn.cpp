@@ -4,6 +4,7 @@ using namespace std;
 
 void printpath(vector<int> path, int m, int n)
 {
+	// We know the path length will always be m+n-1
 	for(int i= 0; i<m+n-1; i++)
 		cout<<path[i]<<" ";
 	cout<<endl;
@@ -11,6 +12,8 @@ void printpath(vector<int> path, int m, int n)
 
 void printAllPathsUtil(int mat[2][3], int i, int j, int m, int n, vector<int> &paths, int ci)
 {
+	// Reached the bottom of the matrix so we are left with
+    	// only option to move right
 	if (i == m-1)
 	{
 		for(int k=j; k<n; k++)
@@ -19,6 +22,8 @@ void printAllPathsUtil(int mat[2][3], int i, int j, int m, int n, vector<int> &p
 		return;
 	}
 
+	// Reached the right corner of the matrix we are left with
+    	// only the downward movement.
 	if (j == n-1)
 	{
 		for(int k=i; k<m; k++)
@@ -27,9 +32,13 @@ void printAllPathsUtil(int mat[2][3], int i, int j, int m, int n, vector<int> &p
 		return;
 	}
 
+	// Add the current cell to the path being generated
 	paths[ci] = mat[i][j];
 
+	// Print all the paths that are possible after moving down
 	printAllPathsUtil(mat, i+1, j, m, n, paths, ci+1);
+	
+	// Print all the paths that are possible after moving right
 	printAllPathsUtil(mat, i, j+1, m, n, paths, ci+1);
 }
 

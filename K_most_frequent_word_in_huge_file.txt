@@ -1,5 +1,6 @@
-Find K most frequent word in a really huge file
+Credits: https://prismoskills.appspot.com/lessons/System_Design_and_Big_Data/Chapter_05_-_K_most_frequent_words_in_a_huge_file.jsp
 
+Find K most frequent word in a really huge file
 
 Problem: Given a very huge file (one that may not fit into several computer's hard disk), 
 find the top K most frequent words in that file.

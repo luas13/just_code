@@ -34,3 +34,13 @@ int main() {
    cout<<endl;
    return 0;
 }
+
+/*
+All possible paths :-
+DDRR
+DRDR
+DRRD
+RDDR
+RDRD
+RRDD
+*/

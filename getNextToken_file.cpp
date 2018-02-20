@@ -50,7 +50,27 @@ file content is
 
 30 10 50 # # # 20 45 # # 35 # #
 
-    
+Output:
+30
+10
+50
+#
+Not a number
+#
+Not a number
+#
+Not a number
+20
+45
+#
+Not a number
+#
+Not a number
+35
+#
+Not a number
+
+
 std::string token;
 std::ifstream file("file.txt");
 while(std::getline(file, token)) {

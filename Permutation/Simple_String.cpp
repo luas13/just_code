@@ -1,3 +1,63 @@
+// Soln 1: Iterative soln, with better time complexity
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+class Solution {
+public:
+    vector<string> permuteUnique(string& nums) {
+        vector<string> vv;
+        int l = nums.size();
+        if (l<2)
+            return vv;
+        
+        vv.push_back(nums);
+        
+        for(int pos=0; pos<l-1; pos++)
+        {
+            int s = vv.size();
+            for(int i=0; i<s; i++)
+            {
+                sort(vv[i].begin()+ pos, vv[i].end());
+                
+                for(int j=pos+1; j<l; j++)
+                {
+                    string v = vv[i];
+                    
+                    if (j>0 && v[j] == v[j-1])
+                        continue;
+                    
+                    swap(v[pos], v[j]);
+                    vv.push_back(v);
+                }
+            }
+        }
+        return vv;
+    }
+};
+
+
+// Driver code
+int main()
+{
+	// Creating object of the class
+	Solution object;
+    	string s = "abac";
+
+	vector<string> res = object.permuteUnique(s);
+
+	for(int i=0; i<res.size(); i++)
+	    cout<<res[i]<<endl;
+	
+	return 0;
+}
+
+
+//-------------------------------------------------------------------
+// Soln 2
 Input: "abc"
 // Output
 abc

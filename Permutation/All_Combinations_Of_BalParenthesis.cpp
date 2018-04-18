@@ -46,3 +46,11 @@ int main()
 	    cout<<bstr<<endl;
 	return 0;
 }
+
+/*Output
+{}{}{}
+{}{{}}
+{{}}{}
+{{}{}}
+{{{}}}
+*/

@@ -1,58 +1,56 @@
 // Soln 1: Iterative soln, with better time complexity
+// Prints only unique combinations
 
 #include <iostream>
 #include <vector>
-#include <algorithm>
+#include<string>
+#include<algorithm>
 
 using namespace std;
 
-class Solution {
-public:
-    vector<string> permuteUnique(string& nums) {
+vector<string> permuteUnique(string& str) {
         vector<string> vv;
-        int l = nums.size();
+        vv.push_back(str);
+        
+        int l = str.length();
         if (l<2)
             return vv;
-        
-        vv.push_back(nums);
         
         for(int pos=0; pos<l-1; pos++)
         {
             int s = vv.size();
             for(int i=0; i<s; i++)
             {
-                sort(vv[i].begin()+ pos, vv[i].end());
-                
+                sort(vv[i].begin()+pos, vv[i].end());
                 for(int j=pos+1; j<l; j++)
                 {
+                    // reset to old vector
                     string v = vv[i];
                     
-                    if (j>0 && v[j] == v[j-1])
+                    // perform swap on this vector
+                    if (j-1 >= 0 && v[j] == v[j-1])
                         continue;
                     
-                    swap(v[pos], v[j]);
+                    swap(v[j], v[pos]);
                     vv.push_back(v);
                 }
             }
         }
+        
+        cout<<"Orignal string is: "<<str<<endl;
+        cout<<"Total permuations formed: "<<vv.size()<<endl<<endl;
+        for(int i=0; i<vv.size(); i++)
+            cout<<vv[i]<<endl;
+            
         return vv;
-    }
-};
+}
 
-
-// Driver code
 int main()
 {
-	// Creating object of the class
-	Solution object;
-    	string s = "abac";
+    string s = "geek";
+    permuteUnique(s);
 
-	vector<string> res = object.permuteUnique(s);
-
-	for(int i=0; i<res.size(); i++)
-	    cout<<res[i]<<endl;
-	
-	return 0;
+    return 0;
 }
 
 
@@ -173,3 +171,53 @@ int main()
 	permute(str, 0, n-1);
 	return 0;
 }
+
+
+// In case you want to print all the variants of a string
+// meaning all the permutations of different combinations
+// ABC=> A, B, C, AB, AC, BC, ABC, BA, CA, CB, BAC, BCA
+
+// Algo: I think
+/* Generate all the combinations.
+For each combination, call permuteUnique() as above for each combination
+
+// For generating different combinations in increasing manner:
+
+Simplest way of calculating the possible combinations of strings is here ...
+
+Mathematically to find R combinations in a given lot of N = NcR
+
+So what we are finding here is, all possible combinations = Nc0 + Nc1 .... + Ncn = 2 Pow N
+
+So you get 2 Pow N combinations for given word of length N characters.
+
+If you represent 1 to (2 Pow N) integers in binary, and place your char in the place where 1 is present, finally you would get the solution.
+
+Example:
+Input : ABC
+
+Solution :
+
+ABC length is 3. So possible combinations 2 Pow 3 = 8
+
+If 0 - 8 represented in binary
+
+000 =
+
+001 = C
+
+010 = B
+
+011 = BC
+
+100 = A
+
+101 = AC
+
+110 = AB
+
+111 = ABC
+
+all possible combinations are shown above.
+
+*/

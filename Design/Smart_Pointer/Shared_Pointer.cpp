@@ -80,7 +80,7 @@ public:
         // if reference become zero delete the data
         if(reference->Release() == 0)
         {
-            cout<<"Updated "<<*reference;
+            cout<<*reference;
             
             delete pData;
             delete reference;
@@ -129,10 +129,10 @@ public:
     }
     
     friend ostream& operator<<(ostream& os, SP<T>& sp) 
-	  { 
-		    os << "Address pointed : " << sp.getPointer() << endl; 
-		    cout << *(sp.reference) << endl; 
-	  } 
+    { 
+	os << "Address pointed : " << sp.getPointer() << endl; 
+	cout << *(sp.reference) << endl; 
+    } 
 };
 
 class Person
@@ -234,6 +234,6 @@ Counter Value : 1
 
 Name = Scott Age = 25
 Destructor called !
-Updated Counter Value : 0
+Counter Value : 0
 Memory allocated now deleted !!!
 */
